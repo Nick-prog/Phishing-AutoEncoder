@@ -66,7 +66,7 @@ def main2():
     autoencoder.train(x_train, x_train, epochs, batch_size)
 
     # print(autoencoder.get_encoder().summary())
-    # autoencoder.plot_encoded_output(x_valid, y_valid)
+    autoencoder.plot_encoded_output(x_valid, y_valid)
     coeffs = autoencoder.calculate_correlation_coefficients(x_valid)
     print(coeffs)
 
