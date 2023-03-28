@@ -70,5 +70,39 @@ def main2():
     coeffs = autoencoder.calculate_correlation_coefficients(x_valid)
     print(coeffs)
 
+def main3():
+    data = packages.Preprocess("C:/Users/Nick/Documents/Projects/Excel/combined_phish.xlsx", 'Sheet4')
+    combined = data.download()
+    
+    full_dataset = combined.iloc[0:100].copy() # copy dataset.
+
+    m_labels = packages.pd.DataFrame(full_dataset['label']) # Label only dataframe.
+
+    # Feature only dataframe. Drop irrelavant columns and scale with mmx_scale method.
+    m_features = full_dataset.drop(['url', 'label'] , axis=1)
+    m_features_scaled = data.mmx_scale(m_features)
+
+    # Pass feature and label dataframe to starify_shuffle_split method. Obtain a training and testing set for both.
+    train_feature, train_label, test_feature, test_label = data.straify_shuffle_split(m_features_scaled, m_labels)
+    
+    # Separate our training data into a training and validation set.
+    x_train, x_valid, y_train, y_valid = data.train_test_split(train_feature, train_label)
+    
+    # Initialize the autoencoder model
+    num_hidden_layers = 3
+    num_nodes = [36, 18, x_train.shape[1]] # List of how many neurons per layer
+    input_shape = (x_train.shape[1],) # Based on number of features
+    autoencoder = packages.Autoencoder(input_shape, num_hidden_layers, num_nodes)
+
+    # Train the autoencoder model
+    epochs = 1
+    batch_size = 16
+    autoencoder.train(x_train, x_train, epochs, batch_size)
+
+    # print(autoencoder.get_encoder().summary())
+    coeffs = autoencoder.calculate_correlation_coefficients(x_valid)
+    print(coeffs)
+    autoencoder.plot_encoded_output(x_valid, y_valid)
+
 if __name__ == '__main__':
-    main2()
+    main3()

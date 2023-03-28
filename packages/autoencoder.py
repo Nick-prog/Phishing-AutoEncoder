@@ -63,7 +63,7 @@ class Autoencoder:
         kmeans = KMeans(n_clusters=n_clusters, random_state=15).fit(encoded_output)
         labels = kmeans.labels_
         columns = x_test.columns
-        encoded_df = pd.DataFrame(data=encoded_output, columns=['encoded_{}'.format(col) for col in columns])
+        encoded_df = pd.DataFrame(data=encoded_output, columns=['{}'.format(col) for col in columns])
         if y_test is not None:
             encoded_df['label'] = y_test
         sns.pairplot(encoded_df, hue='label', diag_kind='kde')

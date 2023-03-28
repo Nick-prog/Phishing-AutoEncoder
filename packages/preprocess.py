@@ -8,12 +8,16 @@ class Preprocess:
     Class created for all preprocessing data purposes.
     '''
 
-    def __init__(self, path):
+    def __init__(self, path, name="Sheet1"):
         self.path = path
+        self.name = name
         self.random_state = 16
 
     def download(self):
-        data = pd.read_csv(self.path)
+        if(self.name == "Sheet1"):
+            data = pd.read_csv(self.path, verbose=1)
+        else:
+            data = pd.read_excel(self.path, sheet_name=self.name, verbose=1)
         self.df = pd.DataFrame(data)
         return self.df
     
