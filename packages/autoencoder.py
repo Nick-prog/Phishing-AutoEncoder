@@ -1,9 +1,16 @@
-from tensorflow import keras
+import random
+import numpy as np
 import pandas as pd
 import seaborn as sns
+import tensorflow as tf
 import matplotlib.pyplot as plt
+from tensorflow import keras
 from sklearn.cluster import KMeans
-import numpy as np
+from sklearn.metrics import accuracy_score
+
+tf.random.set_seed(15)
+np.random.seed(15)
+random.seed(15)
 
 class Autoencoder:
     def __init__(self, input_shape, num_hidden_layers, num_nodes):
@@ -14,12 +21,12 @@ class Autoencoder:
 
         # Define the encoder layers
         encoded = inputs
-        for i in range(num_hidden_layers):
+        for i in range(self.num_hidden_layers):
             encoded = keras.layers.Dense(num_nodes[i], activation='relu')(encoded)
 
         # Define the decoder layers
         decoded = encoded
-        for i in reversed(range(num_hidden_layers)):
+        for i in reversed(range(self.num_hidden_layers)):
             decoded = keras.layers.Dense(num_nodes[i], activation='relu')(decoded)
         decoded = keras.layers.Dense(input_shape[0], activation='sigmoid')(decoded)
 
@@ -27,11 +34,11 @@ class Autoencoder:
         self.autoencoder = keras.models.Model(inputs=inputs, outputs=decoded)
 
         # Compile the autoencoder model
-        self.autoencoder.compile(optimizer='adam', loss="mse")
+        self.autoencoder.compile(optimizer='adam', loss="binary_crossentropy", metrics=['accuracy'])
 
         # Define the encoder model
         self.encoder = keras.models.Sequential()
-        for i in range(num_hidden_layers):
+        for i in range(self.num_hidden_layers):
             self.encoder.add(keras.layers.Dense(num_nodes[i], activation='relu', input_shape=input_shape))
         self.encoder.build(input_shape)
 
@@ -40,11 +47,12 @@ class Autoencoder:
         Method to train the autoencoder by passing all relevant parameters
         to the fit method.
         '''
-        self.autoencoder.fit(x_train, x_train,
-                              epochs=epochs,
-                              batch_size=batch_size,
-                              shuffle=True,
-                              validation_data=(x_val, x_val))
+        history = self.autoencoder.fit(x_train, x_train,
+                                       epochs=epochs,
+                                       batch_size=batch_size,
+                                       shuffle=True,
+                                       validation_data=(x_val, x_val))
+        return history
 
     def get_encoder(self):
         '''
