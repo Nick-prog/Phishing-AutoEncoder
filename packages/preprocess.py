@@ -21,7 +21,7 @@ class Preprocess:
         .csv or .xlsx file.
         '''
         if(self.name == "Sheet1"):
-            data = pd.read_csv(self.path, verbose=1)
+            data = pd.read_csv(self.path, verbose=1,)
         else:
             data = pd.read_excel(self.path, sheet_name=self.name, verbose=1)
         self.df = pd.DataFrame(data)
@@ -97,7 +97,7 @@ class Preprocess:
         from gensim.models import Word2Vec
         sentences = [url.split("/") for url in df[column]]
 
-        model = Word2Vec(sentences=sentences, vector_size=100, window=5, min_count=1, workers=4)
+        model = Word2Vec(sentences=sentences, vector_size=80, window=5, min_count=1, workers=4)
 
         # Transform URLs into embeddings using the trained Word2Vec model
         url_embeddings = []
@@ -113,5 +113,5 @@ class Preprocess:
             url_embeddings.append(url_embedding)
 
         # Create a new DataFrame with the encoded features
-        encoded_df = pd.DataFrame(url_embeddings, columns=[f"{column}_{i}" for i in range(100)])
+        encoded_df = pd.DataFrame(url_embeddings, columns=[f"{column}_{i}" for i in range(80)])
         return encoded_df
