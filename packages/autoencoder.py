@@ -13,7 +13,7 @@ np.random.seed(15)
 random.seed(15)
 
 class Autoencoder:
-    def __init__(self, input_shape, num_hidden_layers, num_nodes):
+    def __init__(self, input_shape, num_hidden_layers, num_nodes, active):
         self.num_hidden_layers = num_hidden_layers
 
         # Define the input layer
@@ -22,13 +22,13 @@ class Autoencoder:
         # Define the encoder layers
         encoded = inputs
         for i in range(self.num_hidden_layers):
-            encoded = keras.layers.Dense(num_nodes[i], activation='relu')(encoded)
+            encoded = keras.layers.Dense(num_nodes[i], activation=active)(encoded)
 
         # Define the decoder layers
         decoded = encoded
         for i in reversed(range(self.num_hidden_layers)):
-            decoded = keras.layers.Dense(num_nodes[i], activation='relu')(decoded)
-        decoded = keras.layers.Dense(input_shape[0], activation='sigmoid')(decoded)
+            decoded = keras.layers.Dense(num_nodes[i], activation=active)(decoded)
+        decoded = keras.layers.Dense(input_shape[0], activation=active)(decoded)
 
         # Define the autoencoder model
         self.autoencoder = keras.models.Model(inputs=inputs, outputs=decoded)
@@ -39,7 +39,7 @@ class Autoencoder:
         # Define the encoder model
         self.encoder = keras.models.Sequential()
         for i in range(self.num_hidden_layers):
-            self.encoder.add(keras.layers.Dense(num_nodes[i], activation='relu', input_shape=input_shape))
+            self.encoder.add(keras.layers.Dense(num_nodes[i], activation=active, input_shape=input_shape))
         self.encoder.build(input_shape)
 
     def train(self, x_train, x_val, epochs, batch_size):

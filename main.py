@@ -1,6 +1,8 @@
+import time
 import packages
 import random
 import numpy as np
+import tensorflow as tf
 from sklearn.model_selection import RandomizedSearchCV
 from scikeras.wrappers import KerasClassifier
 
@@ -33,7 +35,7 @@ def semantic_dataset():
     - Trying different hyper parameters (activation functions, optimizers, neurons, etc...)
     Always consider the possibiltiy of over training, if results are similar don't push it too much farther.
     '''
-    data = packages.Preprocess("C:/Users/Nick/Documents/Projects/Excel/test.csv")
+    data = packages.Preprocess("C:/Users/Nicko/Documents/Cyber INT/Phishing-AutoEncoder/test.csv")
     combined = data.download()
     
     full_dataset = combined.copy() # copy dataset.
@@ -56,13 +58,20 @@ def semantic_dataset():
     # Separate our training data into a training and validation set.
     x_train, x_valid, y_train, y_valid = data.train_test_split(train_feature, train_label)
 
+    hidden = 5
+    epoch = 100
+    nodes = [x_train.shape[1] * (hidden-i) for i in range(hidden)]
+    active = "relu"
+    # active = tf.keras.layers.LeakyReLU(alpha=0.3)
+
     # Initialize the autoencoder model
     autoencoder = packages.Autoencoder(input_shape = (x_train.shape[1],), # Based on number of features
-                                       num_hidden_layers = 3, 
-                                       num_nodes = [x_train.shape[1]*3, x_train.shape[1]*2, x_train.shape[1]]) # List of how many neurons per layer
+                                       num_hidden_layers = hidden, 
+                                       num_nodes = nodes,
+                                       active = active) # List of how many neurons per layer
     
     # Train the autoencoder model
-    history = autoencoder.train(x_train, x_valid, epochs=1, batch_size=256)
+    history = autoencoder.train(x_train, x_valid, epochs=epoch, batch_size=256)
 
     encoder = autoencoder.get_encoder()
     x_train_pred = encoder.predict(x_train)
@@ -73,8 +82,14 @@ def semantic_dataset():
     classifier.logistic_regression(max_iter=1000)
     classifier.random_forest(estimators=100)
     classifier.support_vector_machine(kernel="linear", regularization=1)
-    print("End.")
+    print(f"{epoch} epochs with {hidden} hidden layers for the {active} activation function. End.")
 
 if __name__ == '__main__':
     # syntactic_dataset()
+    start_time = time.time()
+
     semantic_dataset()
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Elapsed time: {elapsed_time:.2f} seconds")
